@@ -8,11 +8,11 @@
 import Foundation
 
 protocol Networking {
-    func fetchData() async throws -> Result<LotteryResponse, Error>
+    func fetchData() async throws -> Result<[LotteryResponse], Error>
 }
 
 actor NetworkingService: Networking {
-    func fetchData() async throws -> Result<LotteryResponse, any Error> {
+    func fetchData() async throws -> Result<[LotteryResponse], any Error> {
         guard let url = URL(string: Constants.baseURL) else {
             throw NSError(domain: "Invalid URL", code: 0, userInfo: nil)
         }
@@ -22,7 +22,9 @@ actor NetworkingService: Networking {
         let (data, _) = try await URLSession.shared.data(for: request)
         
         do {
-            let decodedData = try JSONDecoder().decode(LotteryResponse.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let decodedData = try decoder.decode([LotteryResponse].self, from: data)
             return .success(decodedData)
         } catch {
             throw error
