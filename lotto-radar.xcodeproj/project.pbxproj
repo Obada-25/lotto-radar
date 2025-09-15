@@ -45,6 +45,16 @@
 			path = "lotto-radarUITests";
 			sourceTree = "<group>";
 		};
+		0E1C21002E78539700D70627 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		0E1C21012E7853A700D70627 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +85,8 @@
 		0E1C20CD2E78515A00D70627 = {
 			isa = PBXGroup;
 			children = (
+				0E1C21012E7853A700D70627 /* Services */,
+				0E1C21002E78539700D70627 /* Models */,
 				0E1C20D82E78515A00D70627 /* lotto-radar */,
 				0E1C20E62E78515B00D70627 /* lotto-radarTests */,
 				0E1C20F02E78515B00D70627 /* lotto-radarUITests */,
@@ -109,6 +121,8 @@
 			);
 			fileSystemSynchronizedGroups = (
 				0E1C20D82E78515A00D70627 /* lotto-radar */,
+				0E1C21002E78539700D70627 /* Models */,
+				0E1C21012E7853A700D70627 /* Services */,
 			);
 			name = "lotto-radar";
 			packageProductDependencies = (
