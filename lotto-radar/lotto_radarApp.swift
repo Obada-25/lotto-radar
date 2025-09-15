@@ -11,7 +11,7 @@ import SwiftUI
 struct lotto_radarApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LotteryView()
         }
     }
 }
