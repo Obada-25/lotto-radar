@@ -11,7 +11,9 @@ import SwiftUI
 struct lotto_radarApp: App {
     var body: some Scene {
         WindowGroup {
-            LotteryView()
+            LotteryView(
+                viewModel: LotteryViewModel(networkingService: NetworkingService())
+            )
         }
     }
 }

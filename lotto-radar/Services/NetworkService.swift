@@ -31,3 +31,11 @@ actor NetworkingService: Networking {
         }
     }
 }
+
+// MARK: Mock
+
+struct MockNetworking: Networking {
+    func fetchData() async throws -> Result<[LotteryResponse], any Error> {
+        return .success([])
+    }
+}

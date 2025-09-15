@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class LotteryViewmodel: ObservableObject {
+final class LotteryViewModel: ObservableObject {
     // MARK: Properties
     @Published var isLoading = false
     @Published var error: Error?
