@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LotteryView: View {
     @ObservedObject var viewModel: LotteryViewModel
-    @State private var selectedType: Lottery = .sixAus49
+    @State private var selectedLotteryType: Lottery = .sixAus49
     @Environment(\.openURL) var openURL
     
     var body: some View {
@@ -19,8 +19,10 @@ struct LotteryView: View {
                     pickerView
                 }
                 
-                // Next draw info
-                if let selected = viewModel.selectedLottery, let info = viewModel.formattedNextDrawInfo(for: selected) {
+                // Next draw header + info
+                if let selectedLottery = viewModel.selectedLottery, let info = viewModel.formattedNextDrawInfo(for: selectedLottery) {
+                    HStack { Text("Next draw").font(.headline); Spacer() }
+                        .padding(.horizontal)
                     NextDrawView(
                         jackpotText: info.jackpotText,
                         dateText: info.dateText,
@@ -33,9 +35,11 @@ struct LotteryView: View {
                     }
                 }
                 
-                // Previous draws list
-                if let selected = viewModel.selectedLottery {
-                    PreviousDrawsListView(draws: viewModel.previousDraws(for: selected))
+                // Previous draws header + list
+                if let selectedLottery = viewModel.selectedLottery {
+                    HStack { Text("Previous draws").font(.headline); Spacer() }
+                        .padding(.horizontal)
+                    PreviousDrawsListView(draws: viewModel.previousDraws(for: selectedLottery))
                 } else {
                     Spacer()
                 }
@@ -45,9 +49,9 @@ struct LotteryView: View {
             .navigationTitle("Lotto Radar")
             .task {
                 await viewModel.fetchData()
-                if let first = viewModel.lotteries.first {
-                    selectedType = first.lottery
-                    viewModel.selectedLottery = first
+                if let firstLottery = viewModel.lotteries.first {
+                    selectedLotteryType = firstLottery.lottery
+                    viewModel.selectedLottery = firstLottery
                 }
             }
             .overlay {
@@ -62,7 +66,7 @@ struct LotteryView: View {
     }
     
     private var pickerView: some View {
-        Picker("Lottery", selection: $selectedType) {
+        Picker("Lottery", selection: $selectedLotteryType) {
             ForEach(viewModel.lotteries, id: \.lottery) { response in
                 Text(response.lottery.name.capitalized)
                     .tag(response.lottery)
@@ -71,7 +75,7 @@ struct LotteryView: View {
         .pickerStyle(.segmented)
         .padding(.horizontal)
         .colorMultiply(.yellow)
-        .onChange(of: selectedType) { _, newValue in
+        .onChange(of: selectedLotteryType) { _, newValue in
             viewModel.selectedLottery = viewModel.lotteries.first { $0.lottery == newValue }
         }
     }

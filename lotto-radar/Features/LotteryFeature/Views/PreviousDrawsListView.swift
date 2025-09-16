@@ -31,9 +31,9 @@ struct PreviousDrawsListView: View {
                                 .background(Color.yellow.opacity(0.25))
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
-                        if let euro = draw.drawResult.euroNumbers, !euro.isEmpty {
-                            ForEach(euro, id: \.self) { e in
-                                Text("\(e)")
+                        if let euroNumbers = draw.drawResult.euroNumbers, !euroNumbers.isEmpty {
+                            ForEach(euroNumbers, id: \.self) { euroNumber in
+                                Text("\(euroNumber)")
                                     .font(.subheadline)
                                     .padding(.vertical, 4)
                                     .padding(.horizontal, 8)
@@ -53,11 +53,15 @@ struct PreviousDrawsListView: View {
     }
     
     private func formatted(date: Date) -> String {
+        return Self.dateFormatter.string(from: date)
+    }
+
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
+        return formatter
+    }()
 }
 
 #Preview {
