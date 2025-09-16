@@ -9,7 +9,6 @@ import Foundation
 
 struct Draw: Codable {
     let drawIdentifier: String
-    let lottery: Lottery
     let drawDate: Date
     let drawDateUtc: Date
     let drawResult: DrawResult

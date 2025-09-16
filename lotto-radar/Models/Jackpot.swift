@@ -9,7 +9,6 @@ import Foundation
 
 struct Jackpot: Codable {
     let drawIdentifier: String
-    let lottery: Lottery
     let drawDate: Date
     let currency: String
     let jackpots: [String: String]

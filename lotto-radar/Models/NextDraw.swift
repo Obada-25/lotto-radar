@@ -9,7 +9,6 @@ import Foundation
 
 struct NextDraw: Codable {
     let drawIdentifier: String
-    let lottery: Lottery
     let drawDate: Date
     let drawDateUtc: Date
     let timeZone: String
