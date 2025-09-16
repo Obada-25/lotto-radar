@@ -14,6 +14,14 @@ final class LotteryViewModel: ObservableObject {
     @Published var error: Error?
     @Published var lotteries: [LotteryResponse] = []
     @Published var selectedLottery: LotteryResponse?
+    @Published var selectedLotteryType: Lottery? {
+        didSet {
+            guard let selectedLotteryType else { return }
+            if let match = lotteries.first(where: { $0.lottery == selectedLotteryType }) {
+                selectedLottery = match
+            }
+        }
+    }
     
     private let networkingService: Networking
     
@@ -45,6 +53,7 @@ final class LotteryViewModel: ObservableObject {
             case .success(let lotteries):
                 self.lotteries = lotteries
                 self.selectedLottery = lotteries.first
+                self.selectedLotteryType = lotteries.first?.lottery
             case .failure(let error):
                 self.error = error
             }
@@ -76,5 +85,10 @@ final class LotteryViewModel: ObservableObject {
     
     func formatDate(_ date: Date) -> String {
         return dateFormatter.string(from: date)
+    }
+
+    // MARK: Selection helpers
+    func selectLottery(type: Lottery) {
+        selectedLotteryType = type
     }
 }

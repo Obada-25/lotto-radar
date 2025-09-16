@@ -34,12 +34,12 @@ enum Lottery: String, Codable {
         }
     }
     
-    var websiteURL: URL {
+    var websiteURL: URL? {
         switch self {
         case .sixAus49:
-            return URL(string: "https://www.lotto.de")!
+            return URL(string: "https://www.lotto.de")
         case .eurojackpot:
-            return URL(string: "https://www.eurojackpot.com/")!
+            return URL(string: "https://www.eurojackpot.com/")
         }
     }
 }

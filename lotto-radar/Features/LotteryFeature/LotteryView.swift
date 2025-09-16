@@ -17,28 +17,35 @@ struct LotteryView: View {
             VStack(spacing: 16) {
                 if !viewModel.lotteries.isEmpty {
                     pickerView
+                } else if viewModel.error == nil {
+                    Text("No lotteries available")
+                        .foregroundStyle(.secondary)
                 }
                 
                 // Next draw header + info
                 if let selectedLottery = viewModel.selectedLottery, let info = viewModel.formattedNextDrawInfo(for: selectedLottery) {
-                    HStack { Text("Next draw").font(.headline); Spacer() }
-                        .padding(.horizontal)
+                    HStack {
+                        Text("Next draw").font(.headline)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
                     NextDrawView(
                         jackpotText: info.jackpotText,
                         dateText: info.dateText,
-                        primaryColor: (viewModel.selectedLottery?.lottery.mainColor)!,
-                        secondaryColor: (viewModel.selectedLottery?.lottery.accentColor)!
+                        primaryColor: viewModel.selectedLottery?.lottery.mainColor ?? .primary,
+                        secondaryColor: viewModel.selectedLottery?.lottery.accentColor ?? .secondary
                     )
                     .padding(.horizontal)
-                    .onTapGesture {
-                        openURL(viewModel.selectedLottery!.lottery.websiteURL)
-                    }
+                    .onTapGesture { if let url = viewModel.selectedLottery?.lottery.websiteURL { openURL(url) } }
                 }
                 
                 // Previous draws header + list
                 if let selectedLottery = viewModel.selectedLottery {
-                    HStack { Text("Previous draws").font(.headline); Spacer() }
-                        .padding(.horizontal)
+                    HStack {
+                        Text("Previous draws").font(.headline)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
                     PreviousDrawsListView(draws: viewModel.previousDraws(for: selectedLottery))
                 } else {
                     Spacer()
@@ -49,14 +56,9 @@ struct LotteryView: View {
             .navigationTitle("Lotto Radar")
             .task {
                 await viewModel.fetchData()
-                if let firstLottery = viewModel.lotteries.first {
-                    selectedLotteryType = firstLottery.lottery
-                    viewModel.selectedLottery = firstLottery
-                }
+                if let type = viewModel.selectedLotteryType { selectedLotteryType = type }
             }
-            .overlay {
-                if viewModel.isLoading { ProgressView() }
-            }
+            .overlay { if viewModel.isLoading && viewModel.lotteries.isEmpty { ProgressView() } }
             .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
                 Button("OK", role: .cancel) { viewModel.error = nil }
             }, message: {
@@ -66,18 +68,22 @@ struct LotteryView: View {
     }
     
     private var pickerView: some View {
-        Picker("Lottery", selection: $selectedLotteryType) {
-            ForEach(viewModel.lotteries, id: \.lottery) { response in
-                Text(response.lottery.name.capitalized)
-                    .tag(response.lottery)
+        Picker("Lottery", selection: Binding(
+            get: { viewModel.selectedLotteryType ?? selectedLotteryType },
+            set: { newType in
+                selectedLotteryType = newType
+                viewModel.selectLottery(type: newType)
+            }
+        )) {
+            ForEach(viewModel.lotteries, id: \.lottery) { lotteryResponse in
+                Text(lotteryResponse.lottery.name.capitalized)
+                    .tag(lotteryResponse.lottery)
             }
         }
         .pickerStyle(.segmented)
         .padding(.horizontal)
         .colorMultiply(.yellow)
-        .onChange(of: selectedLotteryType) { _, newValue in
-            viewModel.selectedLottery = viewModel.lotteries.first { $0.lottery == newValue }
-        }
+        .onChange(of: selectedLotteryType) { _, newValue in viewModel.selectLottery(type: newValue) }
     }
 }
 
