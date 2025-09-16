@@ -8,16 +8,72 @@
 import SwiftUI
 
 struct LotteryView: View {
-    var viewModel: LotteryViewModel
+    @ObservedObject var viewModel: LotteryViewModel
+    @State private var selectedType: Lottery = .sixAus49
+    @Environment(\.openURL) var openURL
     
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            VStack(spacing: 16) {
+                if !viewModel.lotteries.isEmpty {
+                    pickerView
+                }
+                
+                // Next draw info
+                if let selected = viewModel.selectedLottery, let info = viewModel.formattedNextDrawInfo(for: selected) {
+                    NextDrawView(
+                        jackpotText: info.jackpotText,
+                        dateText: info.dateText,
+                        primaryColor: (viewModel.selectedLottery?.lottery.mainColor)!,
+                        secondaryColor: (viewModel.selectedLottery?.lottery.accentColor)!
+                    )
+                    .padding(.horizontal)
+                    .onTapGesture {
+                        openURL(viewModel.selectedLottery!.lottery.websiteURL)
+                    }
+                }
+                
+                // Previous draws list
+                if let selected = viewModel.selectedLottery {
+                    PreviousDrawsListView(draws: viewModel.previousDraws(for: selected))
+                } else {
+                    Spacer()
+                }
+                
+                Spacer(minLength: 0)
+            }
+            .navigationTitle("Lotto Radar")
+            .task {
+                await viewModel.fetchData()
+                if let first = viewModel.lotteries.first {
+                    selectedType = first.lottery
+                    viewModel.selectedLottery = first
+                }
+            }
+            .overlay {
+                if viewModel.isLoading { ProgressView() }
+            }
+            .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
+                Button("OK", role: .cancel) { viewModel.error = nil }
+            }, message: {
+                Text(viewModel.error?.localizedDescription ?? "Unknown error")
+            })
         }
-        .padding()
+    }
+    
+    private var pickerView: some View {
+        Picker("Lottery", selection: $selectedType) {
+            ForEach(viewModel.lotteries, id: \.lottery) { response in
+                Text(response.lottery.name.capitalized)
+                    .tag(response.lottery)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+        .colorMultiply(.yellow)
+        .onChange(of: selectedType) { _, newValue in
+            viewModel.selectedLottery = viewModel.lotteries.first { $0.lottery == newValue }
+        }
     }
 }
 
