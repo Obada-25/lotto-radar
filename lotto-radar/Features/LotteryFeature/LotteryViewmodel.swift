@@ -52,7 +52,6 @@ final class LotteryViewModel: ObservableObject {
             switch result {
             case .success(let lotteries):
                 self.lotteries = lotteries
-                self.selectedLottery = lotteries.first
                 self.selectedLotteryType = lotteries.first?.lottery
             case .failure(let error):
                 self.error = error
@@ -85,10 +84,5 @@ final class LotteryViewModel: ObservableObject {
     
     func formatDate(_ date: Date) -> String {
         return dateFormatter.string(from: date)
-    }
-
-    // MARK: Selection helpers
-    func selectLottery(type: Lottery) {
-        selectedLotteryType = type
     }
 }

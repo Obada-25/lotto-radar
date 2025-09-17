@@ -9,7 +9,6 @@ import SwiftUI
 
 struct LotteryView: View {
     @ObservedObject var viewModel: LotteryViewModel
-    @State private var selectedLotteryType: Lottery = .sixAus49
     @Environment(\.openURL) var openURL
     
     var body: some View {
@@ -54,10 +53,7 @@ struct LotteryView: View {
                 Spacer(minLength: 0)
             }
             .navigationTitle("Lotto Radar")
-            .task {
-                await viewModel.fetchData()
-                if let type = viewModel.selectedLotteryType { selectedLotteryType = type }
-            }
+            .task { await viewModel.fetchData() }
             .overlay { if viewModel.isLoading && viewModel.lotteries.isEmpty { ProgressView() } }
             .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
                 Button("OK", role: .cancel) { viewModel.error = nil }
@@ -69,11 +65,8 @@ struct LotteryView: View {
     
     private var pickerView: some View {
         Picker("Lottery", selection: Binding(
-            get: { viewModel.selectedLotteryType ?? selectedLotteryType },
-            set: { newType in
-                selectedLotteryType = newType
-                viewModel.selectLottery(type: newType)
-            }
+            get: { viewModel.selectedLotteryType ?? viewModel.lotteries.first?.lottery ?? .sixAus49 },
+            set: { newType in viewModel.selectedLotteryType = newType }
         )) {
             ForEach(viewModel.lotteries, id: \.lottery) { lotteryResponse in
                 Text(lotteryResponse.lottery.name.capitalized)
@@ -83,7 +76,6 @@ struct LotteryView: View {
         .pickerStyle(.segmented)
         .padding(.horizontal)
         .colorMultiply(.yellow)
-        .onChange(of: selectedLotteryType) { _, newValue in viewModel.selectLottery(type: newValue) }
     }
 }
 

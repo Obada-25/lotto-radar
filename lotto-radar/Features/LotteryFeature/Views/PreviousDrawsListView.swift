@@ -12,25 +12,49 @@ struct PreviousDrawsListView: View {
     
     var body: some View {
         List(draws, id: \.drawIdentifier) { draw in
-            VStack(alignment: .leading, spacing: 6) {
-                NumbersRowView(drawResult: draw.drawResult)
+            VStack(alignment: .leading, spacing: 8) {
                 Text(formatted(date: draw.drawDate))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                Text(formatted(totalStake: Double(draw.totalStake) ?? 0))
+                    .font(.subheadline).bold()
+                    .foregroundStyle(draw.lottery.mainColor)
+                    .padding(.all, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(draw.lottery.accentColor)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(draw.lottery.mainColor, lineWidth: 2)
+                    )
+
+                NumbersRowView(drawResult: draw.drawResult)
             }
             .padding(.vertical, 6)
         }
         .listStyle(.plain)
+        .scrollBounceBehavior(.basedOnSize)
     }
     
     private func formatted(date: Date) -> String {
         return Self.dateFormatter.string(from: date)
     }
     
+    private func formatted(totalStake: Double) -> String {
+        return Self.currencyFormatter.string(from: NSNumber(value: totalStake)) ?? ""
+    }
+    
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
+        return formatter
+    }()
+    
+    private static let currencyFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "EUR"
         return formatter
     }()
 }
@@ -73,5 +97,3 @@ private struct NumbersRowView: View {
 #Preview {
     PreviousDrawsListView(draws: [])
 }
-
-
